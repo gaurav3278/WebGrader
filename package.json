@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next export && rm -rf cache",
+    "build": "next build && next export && rm -rf .next/cache",
     "start": "next start",
     "lint": "next lint"
   },
