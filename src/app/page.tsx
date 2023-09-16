@@ -1,113 +1,130 @@
+'use client'
+
 import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
+import moment from 'moment'
 
-export default function Home() {
+
+const page = () => {
+  const [target, setTarget] = useState('')
+  const [gradedData, setGradedData] = useState<any[]>([])
+  const [loader, setLoader] = useState(false)
+  const [listData, setListData] = useState([])
+  const router = useRouter()
+  const handleSubmit = async () => {
+    setLoader(true)
+    const options = [{
+      url: target
+    }]
+    const { data } = await axios({
+      method: 'post',
+      url: "https://api.dataforseo.com/v3/on_page/lighthouse/live/json",
+      auth: {
+        username: "gauravrai54152@gmail.com",
+        password: "0e99c7ec2463faad"
+      },
+      data: options,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    console.log(data.tasks[0])
+    gradedData.push(data.tasks[0].result[0])
+    setGradedData([...gradedData])
+    setLoader(false)
+  }
+
+  useEffect(() => {
+    console.log(gradedData.length, "gradedData")
+    if (gradedData.length > 0) {
+      const data = localStorage.getItem("listData") || '[]'
+      const dataList = JSON.parse(data)
+      const newData = {
+        url: target,
+        timestamp: Date.now(),
+        performance: gradedData[0]?.categories?.performance,
+        SEO: gradedData[0]?.categories?.seo,
+        Accessibility: gradedData[0]?.categories?.accessibility,
+        screenshot: gradedData[0]?.audits['final-screenshot']?.details?.data,
+        bestPractices: gradedData[0]?.categories['best-practices'],
+        pwa: gradedData[0]?.categories.pwa
+      }
+      console.log(newData)
+      dataList.push(newData)
+      localStorage.setItem("listData", JSON.stringify(dataList))
+      setListData(dataList)
+      localStorage.setItem("currentItem", JSON.stringify(newData))
+      router.push(`/${target.replace("https://", "")}`)
+    }
+  }, [gradedData])
+
+  useEffect(() => {
+    const data = localStorage.getItem("listData") || '[]'
+    const dataList = JSON.parse(data)
+    setListData(dataList)
+  }, [])
+
+  const handleClick = (url: any, timestamp: any) => {
+    console.log(url, timestamp)
+    let current: any
+    listData.forEach((x: any) => {
+      if (x.url === url && x.timestamp === timestamp) current = x
+    })
+    console.log(current)
+    localStorage.setItem("currentItem", JSON.stringify(current))
+    router.push(`/${current.url.replace("https://", "")}`)
+  }
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div className='flex flex-col p-5 text-[#f1f1f1] gap-5 items-center justify-center relative'>
+      {loader && <div className='absolute flex items-center justify-center top-0 left-0 w-screen h-screen bg-gray-400/40'>
+        <Image src="/Spinner.svg" alt='' width={200} height={200} />
+      </div>}
+      <div className='flex gap-1 items-center justify-center'>
+        <h1 className='text-3xl text-[#27ae60]'>WebGrader</h1>
+        <Image src={'https://img.icons8.com/fluency-systems-filled/0077cc/48/globe.png'} alt='' height={28} width={28} />
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className='flex flex-col justify-center items-center gap-1 w-full'>
+        <p className='text-xl text-center'>Start Optimizing Your Website For Free</p>
+        <p className='w-[70%] text-[#b0b0b0] text-center'>From SEO to speed to security, our free website grader is intuitive, just like websites should be. Find out where you stand and identify opportunities that will help your website to climb those search results.
+          Run your review today to get and instant website analytics and learn what yoy need to do to improve.</p>
       </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className='text-[#f1f1f1] border border-[#2a7d50] rounded-md'>
+        <input onChange={(e) => {
+          setTarget(e.target.value)
+        }} className='bg-[#2c2c2c] p-2 rounded-tr-none rounded-br-none rounded-md  text-[#f1f1f1] outline-none placeholder:text-[#747474]' type="text" placeholder='Enter your URL here...' />
+        <button type='submit' onClick={handleSubmit} className='bg-[#27ae60] rounded-tl-none rounded-bl-none rounded-md hover:bg-[#1a7d4f] active:bg-[#15693d] p-2 rounded-'>Check my website score</button>
       </div>
-    </main>
+      <div className='bg-[#121212] gap-5 rounded-sm border border-[#27ae60] text-[#f1f1f1] shadow-[0_4px_8px_rgba(0,0,0,0.2)] w-[90%] flex flex-col justify-center p-2'>
+        <h1 className='font-semibold text-xl w-full text-center'>Your Grading Timeline</h1>
+        {listData.length == 0 && <div className='text-center w-full text-[#b0b0b0]'>Welcome to WebGrader! Enter a URL above to get started.</div>}
+        {listData.length > 0 && <ul className='flex flex-col gap-3'>
+          {listData.map((value: any, i) => (
+            <li className='flex gap-2 py-2 px-5 items-center border justify-between border-[#2c2c2c] hover:bg-[#232323] rounded-md shadow-[0_2px_5px_rgba(0, 0, 0, 0.1)] bg-[#1e1e1e]'>
+              <div className='w-[300px]'>{value?.url}</div>
+              <div className='text-[#b0b0b0]'>{moment(value?.timestamp).fromNow()}</div>
+              <div className='flex flex-col items-center justify-center'>
+                <div>{Math.round(value?.performance.score * 100)}</div>
+                <div className='text-sm font-light'>(Performance)</div>
+              </div>
+              <div className='flex flex-col items-center justify-center'>
+                <div>{Math.round(value?.SEO.score * 100)}</div>
+                <div className='text-sm font-light'>(SEO)</div>
+              </div>
+              <div className='flex flex-col items-center justify-center'>
+                <div>{Math.round(value?.Accessibility.score * 100)}</div>
+                <div className='text-sm font-light'>(Accessibility)</div>
+              </div>
+              <button type='button' onClick={() => handleClick(value?.url, value?.timestamp)} className='bg-[#27ae60] hover:bg-[#1a7d4f] active:bg-[#15693d] p-2 rounded-sm'>View Report</button>
+            </li>
+          ))}
+        </ul>}
+      </div>
+    </div>
   )
 }
+
+export default page
