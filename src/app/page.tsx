@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import moment from 'moment'
 
+export const runtime = 'edge';
 
 const page = () => {
   const [target, setTarget] = useState('')

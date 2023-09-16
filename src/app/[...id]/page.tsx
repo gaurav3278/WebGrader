@@ -7,6 +7,7 @@ import moment from "moment"
 import NoSSr from '../NoSSr'
 import { CircularProgress } from '@mui/material'
 
+export const runtime = 'edge';
 
 const page = ({ params }: { params: { slug: string } }) => {
     const [loading, setLoading] = useState(true)
