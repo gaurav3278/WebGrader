@@ -120,7 +120,7 @@ const page = ({ params }: { params: { slug: string } }) => {
                         <div className='flex w-full items-center justify-center'>
                             <div className='relative w-max'>
                                 <Image src={currentData[0]?.screenshot} alt='' width={500} height={100} />
-                                <Image className='absolute z-10 top-10 left-20' src={'/magnify.svg'} alt='' width={300} height={100} />
+                                <Image className='absolute z-10 top-10 left-20' src={'/Magnify.svg'} alt='' width={300} height={100} />
                             </div>
                         </div>
                         <div className='flex gap-2 text-[#f1f1f1] text-xl'>Hang on while we are analysing your website...</div>
